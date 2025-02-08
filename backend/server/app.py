@@ -1,6 +1,17 @@
-from flask import Flask 
+from flask import Flask, jsonify, request # type: ignore
+from flask_sqlalchemy import SQLAlchemy #type: ignore
+from flask_bcrypt import Bcrypt #type: ignore
+from datetime import datetime
 
 app = Flask(__name__)
+
+
+app.config['SQLALCHEMY_DATABASE_URI']
+
+db = SQLAlchemy()
+db.init_app(app)
+
+bcrypt = Bcrypt(app)
 
 @app.route('/')
 def index():
