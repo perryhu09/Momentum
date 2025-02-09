@@ -1,13 +1,20 @@
-import os
 from flask import Flask, jsonify, request # type: ignore
 from flask_sqlalchemy import SQLAlchemy #type: ignore
 from flask_bcrypt import Bcrypt #type: ignore
 from flask_cors import CORS #type: ignore
-from datetime import datetime, time
 from werkzeug.utils import secure_filename #type: ignore
+from flask_socketio import SocketIO #type: ignore
 import uuid
 
+import os
+from datetime import datetime, time, timedelta
+import time as sleep_time
+from apscheduler.schedulers.background import BackgroundScheduler #type: ignore
+
+import clip_api
+
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins='*')
 CORS(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -23,6 +30,9 @@ bcrypt = Bcrypt(app)
 
 # ensure file opload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+scheduler = BackgroundScheduler()
+scheduler.start()
 
 # ------- Database Models ------- #
 class User(db.Model):
@@ -42,7 +52,7 @@ class Image(db.Model):
     user = db.relationship('User', backref='images') # links together both db, backref allows user.images access all images
 
 with app.app_context():
-    # db.drop_all()
+    db.drop_all()
     db.create_all()
 
 # ------- Helper Functions ------- #
@@ -114,7 +124,10 @@ def upload_image():
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
-        new_image = Image(filename=filename + uuid.uuid4(), user_id=user_id)
+        theme = clip_api.get_closest_theme(filename)
+
+        new_image = Image(filename=filename + uuid.uuid4(), user_id=user_id, theme=theme)
+
         db.session.add(new_image)
         db.session.commit()
 
@@ -130,7 +143,7 @@ def get_images(user_id):
         return jsonify({'message': 'No images found for this user'}), 404
     
     #prep response
-    image_list = [{'id': img.id, 'filename': img.filename, 'uploaded_at': img.uploaded_at} for img in images]
+    image_list = [{'id': img.id, 'filename': img.filename, 'theme': img.theme, 'uploaded_at': img.uploaded_at} for img in images]
     return jsonify({'images': image_list}), 200
 
 @app.route('/image/<int:image_id>', methods=['GET'])
@@ -145,7 +158,30 @@ def get_image(image_id):
     if not os.path.exists(filepath):
         return jsonify({'message': 'Image file not found'}), 404
 
-    return jsonify({'id': image.id, 'filename': image.filename, 'uploaded_at': image.uploaded_at}), 200
+    return jsonify({'id': image.id, 'filename': image.filename, 'theme': image.theme, 'uploaded_at': image.uploaded_at}), 200
+
+# ---------------------------------------- #
+# -------- Notification Function --------- #
+# ---------------------------------------- #
+def send_notification():
+    notification_message = f"Notification sent at {datetime.now()}"
+    print(notification_message)
+    socketio.emit('notification', {'message': notification_message})
+
+def schedule_notification(delay):
+    run_time = datetime.now() + timedelta(seconds=delay)
+
+    scheduler.add_job(
+        send_notification,
+        'date',
+        run_date=run_time
+    )
+    print(f"Scheduled notification to be sent in {delay} seconds at {run_time}")
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    # !-------CONTROL FOR DEMOING PURPOSES-------!
+    delay = 5 # testing pursposes
+    # delay = 30 # demoing purposes
+    schedule_notification(delay)
+
+    socketio.run(app, host='0.0.0.0', port=5001, debug=True)
