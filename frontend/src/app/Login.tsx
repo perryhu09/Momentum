@@ -14,13 +14,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import LoginStyles from "../Styles/LoginStyles";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_URL = "http://127.0.0.1:5001";
 
-  const api = axios.create({
-    baseURL: API_URL,
-  });
-
+const api = axios.create({
+  baseURL: API_URL,
+});
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -31,7 +31,6 @@ export default function LoginScreen() {
   const [errorMessage, setErrorMessage] = useState("");
   const backendon = false;
 
-  
   const handleLogin = async () => {
     if (!email || !password) {
       setErrorMessage("Please fill out all input fields!");
@@ -41,9 +40,11 @@ export default function LoginScreen() {
     setIsLoading(true);
     try {
       const response = await api.post("/login", { email, password });
+      const user_id = response.data.user_id;
+      await AsyncStorage.setItem("user_id", user_id);
       console.log("response status: ", response.status);
-    } catch (err : any) {
-       if (err.response.status === 401) {
+    } catch (err: any) {
+      if (err.response.status === 401) {
         setErrorMessage("Invalid Credentials");
       } else {
         setErrorMessage("Server Failed, please try again");
