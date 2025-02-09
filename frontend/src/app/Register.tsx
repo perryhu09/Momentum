@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,26 +12,91 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import RegisterStyles from "../Styles/RegisterStyles";
+import axios from "axios";
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const buttonScale = new Animated.Value(1);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleLogin = () => {
-    if (!email || !password) {
-      // Add your validation logic here
+  const [wakeHour, setWakeHour] = useState("");
+  const [wakeMinute, setWakeMinute] = useState("");
+  const [sleepHour, setSleepHour] = useState("");
+  const [sleepMinute, setSleepMinute] = useState("");
+
+  const API_URL = "http://127.0.0.1:5001";
+
+  const api = axios.create({
+    baseURL: API_URL,
+  });
+
+  useEffect(() => {
+    if (Number(wakeHour) > 23) {
+      setErrorMessage("Please Input Hours Between 0 and 23");
+      setWakeHour("");
+    } else if (Number(wakeMinute) > 59) {
+      setErrorMessage("Please Input Minutes Between 0 and 59");
+      setWakeMinute("");
+    } else if (Number(sleepHour) > 23) {
+      setErrorMessage("Please Input Hours Between 0 and 23");
+      setSleepHour("");
+    } else if (Number(sleepMinute) > 59) {
+      setErrorMessage("Please Input Minutes Between 0 and 59");
+      setSleepMinute("");
+    } else {
+    }
+  }, [wakeHour, wakeMinute, sleepHour, sleepMinute]);
+
+  const handleRegister = async () => {
+    if (
+      !email ||
+      !password ||
+      !wakeHour ||
+      !wakeMinute ||
+      !sleepHour ||
+      !sleepMinute
+    ) {
+      setErrorMessage("Please fill out all input fields!");
       return;
     }
 
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      // Add your login logic here
-    }, 2000);
+    try {
+      const response = await api.post("/register", { email, password });
+
+      if (response.status == 200) {
+      } else {
+        setErrorMessage("Email already exists!");
+      }
+    } catch (err) {
+      console.error("Error Registering User");
+      setErrorMessage("Server Failed, please try again");
+    }
+    setIsLoading(false);
+  };
+
+  const handleWakeHour = (text: string) => {
+    const numericValue = text.replace(/[^0-9]/g, "");
+    setWakeHour(numericValue);
+  };
+
+  const handleWakeMinute = (text: string) => {
+    const numericValue = text.replace(/[^0-9]/g, "");
+    setWakeMinute(numericValue);
+  };
+
+  const handleSleepHour = (text: string) => {
+    const numericValue = text.replace(/[^0-9]/g, "");
+    setSleepHour(numericValue);
+  };
+
+  const handleSleepMinute = (text: string) => {
+    const numericValue = text.replace(/[^0-9]/g, "");
+    setSleepMinute(numericValue);
   };
 
   const animateButton = () => {
@@ -52,25 +117,24 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      style={RegisterStyles.container}
     >
       <LinearGradient
-        colors={["#4c669f", "#3b5998", "#192f6a"]}
-        style={styles.gradient}
+        colors={["#19191a", "#454545"]}
+        style={RegisterStyles.gradient}
       >
-        <View style={styles.loginContainer}>
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to continue</Text>
+        <View style={RegisterStyles.registerContainer}>
+          <Text style={RegisterStyles.title}>Register</Text>
 
-          <View style={styles.inputContainer}>
+          <View style={RegisterStyles.inputContainer}>
             <Ionicons
               name="mail-outline"
               size={20}
               color="#666"
-              style={styles.inputIcon}
+              style={RegisterStyles.inputIcon}
             />
             <TextInput
-              style={styles.input}
+              style={RegisterStyles.input}
               placeholder="Email"
               placeholderTextColor="#666"
               value={email}
@@ -80,15 +144,15 @@ export default function LoginScreen() {
             />
           </View>
 
-          <View style={styles.inputContainer}>
+          <View style={RegisterStyles.inputContainer}>
             <Ionicons
               name="lock-closed-outline"
               size={20}
               color="#666"
-              style={styles.inputIcon}
+              style={RegisterStyles.inputIcon}
             />
             <TextInput
-              style={styles.input}
+              style={RegisterStyles.input}
               placeholder="Password"
               placeholderTextColor="#666"
               value={password}
@@ -97,7 +161,7 @@ export default function LoginScreen() {
             />
             <TouchableOpacity
               onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
+              style={RegisterStyles.eyeIcon}
             >
               <Ionicons
                 name={showPassword ? "eye-outline" : "eye-off-outline"}
@@ -107,131 +171,94 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </TouchableOpacity>
+          <View style={RegisterStyles.inputContainer}>
+            <Ionicons
+              name="time-outline"
+              size={20}
+              color="#666"
+              style={RegisterStyles.inputIcon}
+            />
+            <View style={RegisterStyles.timeTextContainer}>
+              <Text style={RegisterStyles.timeText}>Time You Wake Up</Text>
+            </View>
+            <TextInput
+              keyboardType="numeric"
+              value={wakeHour}
+              onChangeText={handleWakeHour}
+              placeholder="0"
+            />
+
+            <Text> : </Text>
+            <TextInput
+              keyboardType="numeric"
+              value={wakeMinute}
+              onChangeText={handleWakeMinute}
+              placeholder="0"
+            />
+          </View>
+
+          <View style={RegisterStyles.inputContainer}>
+            <Ionicons
+              name="time-outline"
+              size={20}
+              color="#666"
+              style={RegisterStyles.inputIcon}
+            />
+            <View style={RegisterStyles.timeTextContainer}>
+              <Text style={RegisterStyles.timeText}>Time You Sleep</Text>
+            </View>
+            <TextInput
+              keyboardType="numeric"
+              value={sleepHour}
+              onChangeText={handleSleepHour}
+              placeholder="0"
+            />
+
+            <Text> : </Text>
+            <TextInput
+              keyboardType="numeric"
+              value={sleepMinute}
+              onChangeText={handleSleepMinute}
+              placeholder="0"
+            />
+          </View>
 
           <TouchableOpacity
             onPress={() => {
               animateButton();
-              handleLogin();
+              handleRegister();
             }}
             activeOpacity={0.8}
           >
             <Animated.View
               style={[
-                styles.loginButton,
+                RegisterStyles.registerButton,
                 { transform: [{ scale: buttonScale }] },
               ]}
             >
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.loginButtonText}>Login</Text>
+                <Text style={RegisterStyles.registerButtonText}>Register</Text>
               )}
             </Animated.View>
           </TouchableOpacity>
 
-          <View style={styles.signupContainer}>
-            <Text style={styles.signupText}>Don't have an account? </Text>
+          <View style={RegisterStyles.signupContainer}>
+            <Text style={RegisterStyles.signupText}>
+              Already have an account?{" "}
+            </Text>
             <TouchableOpacity>
-              <Text style={styles.signupLink}>Sign Up</Text>
+              <Text style={RegisterStyles.signupLink}>Login</Text>
             </TouchableOpacity>
           </View>
+          {errorMessage && (
+            <View style={{ justifyContent: "center", flexDirection: "row" }}>
+              <Text style={RegisterStyles.errorMessage}>{errorMessage}</Text>
+            </View>
+          )}
         </View>
       </LinearGradient>
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  gradient: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loginContainer: {
-    width: "88%",
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 20,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#666",
-    marginBottom: 30,
-    textAlign: "center",
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f0f0f0",
-    borderRadius: 10,
-    marginBottom: 16,
-    paddingHorizontal: 14,
-  },
-  inputIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    height: 50,
-    color: "#333",
-    fontSize: 16,
-  },
-  eyeIcon: {
-    padding: 10,
-  },
-  forgotPassword: {
-    alignSelf: "flex-end",
-    marginBottom: 20,
-  },
-  forgotPasswordText: {
-    color: "#4c669f",
-    fontSize: 14,
-  },
-  loginButton: {
-    backgroundColor: "#4c669f",
-    borderRadius: 10,
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  loginButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  signupContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-  },
-  signupText: {
-    color: "#666",
-    fontSize: 14,
-  },
-  signupLink: {
-    color: "#4c669f",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-});
