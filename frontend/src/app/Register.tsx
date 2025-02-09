@@ -14,7 +14,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import RegisterStyles from "../Styles/RegisterStyles";
 import axios from "axios";
-import DropdownComponent from "../components/DropdownMenu";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -48,7 +47,7 @@ export default function LoginScreen() {
     } else if (Number(sleepMinute) > 59) {
       setServerMessage("Please Input Minutes Between 0 and 59");
       setSleepMinute("");
-    } else{
+    } else {
     }
   }, [wakeHour, wakeMinute, sleepHour, sleepMinute]);
 
@@ -73,9 +72,8 @@ export default function LoginScreen() {
         setServerMessage("Email already exists!");
       }
     } catch (err) {
-      console.error("Error Registering User")
-      setServerMessage("Server Failed, please try again")
-      
+      console.error("Error Registering User");
+      setServerMessage("Server Failed, please try again");
     }
     setIsLoading(false);
   };
