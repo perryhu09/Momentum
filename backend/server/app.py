@@ -5,6 +5,7 @@ from flask_bcrypt import Bcrypt #type: ignore
 from flask_cors import CORS #type: ignore
 from datetime import datetime, time
 from werkzeug.utils import secure_filename #type: ignore
+import uuid
 
 app = Flask(__name__)
 CORS(app)
@@ -113,7 +114,7 @@ def upload_image():
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
-        new_image = Image(filename=filename, user_id=user_id)
+        new_image = Image(filename=filename + uuid.uuid4(), user_id=user_id)
         db.session.add(new_image)
         db.session.commit()
 
