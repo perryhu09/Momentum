@@ -8,10 +8,9 @@ import uuid
 
 import os
 from datetime import datetime, time, timedelta
-import time as sleep_time
 from apscheduler.schedulers.background import BackgroundScheduler #type: ignore
 
-import clip_api
+from clip_api import get_closest_theme, PREDEFINED_THEMES
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins='*')
@@ -73,7 +72,7 @@ def login():
     data = request.get_json()
     user = User.query.filter_by(email=data['email']).first()
     if user and bcrypt.check_password_hash(user.password, data['password']):
-        return jsonify({'message': 'Successful Login'}), 200
+        return jsonify({'message': 'Successful Login', 'user_id': user.id}), 200
     return jsonify({'message': 'Invalid Credentials'}), 401
 
 @app.route('/register', methods=['POST'])
@@ -125,7 +124,7 @@ def upload_image():
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
-        theme = clip_api.get_closest_theme(filename)
+        theme = get_closest_theme(filename)
 
         new_image = Image(filename=filename + uuid.uuid4(), user_id=user_id, theme=theme)
 
@@ -160,6 +159,63 @@ def get_image(image_id):
         return jsonify({'message': 'Image file not found'}), 404
 
     return jsonify({'id': image.id, 'filename': image.filename, 'theme': image.theme, 'uploaded_at': image.uploaded_at}), 200
+
+# ---------------------------------------- #
+# ------- ALBUM & STORIES ENDPOINT ------- #
+# ---------------------------------------- #
+@app.route('/albums/<int:user_id>', methods=['GET'])
+def get_albums(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    images = Image.query.filter_by(user_id=user_id).all()
+    if not images:
+        return jsonify({'message': 'No images found for this user'}), 404
+
+    # Organize images by theme
+    album_dict = {theme: [] for theme in PREDEFINED_THEMES}
+    for img in images:
+        if img.theme in album_dict:
+            album_dict[img.theme].append({
+                'id': img.id,
+                'filename': img.filename,
+                'uploaded_at': img.uploaded_at.isoformat() if img.uploaded_at else None
+            })
+    return jsonify({'albums': album_dict}), 200
+
+@app.route('/stories/<int:user_id>', methods=['GET'])
+def get_stories(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    one_week_ago = datetime.now() - timedelta(days=7)
+
+    images = Image.query.filter(Image.user_id == user_id, Image.uploaded_at >= one_week_ago).order_by(Image.uploaded_at).all()
+
+    if not images:
+        return jsonify({'message': 'No recent images found for this user'}), 404
+
+    story_list = [{
+        'id': img.id,
+        'filename': img.filename,
+        'uploaded_at': img.uploaded_at.isoformat() if img.uploaded_at else None
+    } for img in images]
+
+    return jsonify({'stories': story_list}), 200
+
+@app.route('/random_stories/<int:user_id>', methods=['GET']) # NOT currently logged in user
+def get_stories(user_id):
+    current_user = User.query.get(user_id)
+    if not current_user:
+        return jsonify({'message': 'User not found'}), 404
+
+    other_user = User.query.filter(User.id != user_id).order_by(db.func.random()).first()
+    if not other_user:
+        return jsonify({'message': 'No other users found'}), 404
+
+    return get_stories(other_user.id)
 
 # ---------------------------------------- #
 # -------- Notification Function --------- #
