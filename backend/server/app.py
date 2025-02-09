@@ -1,12 +1,17 @@
-import os
 from flask import Flask, jsonify, request # type: ignore
 from flask_sqlalchemy import SQLAlchemy #type: ignore
 from flask_bcrypt import Bcrypt #type: ignore
 from flask_cors import CORS #type: ignore
-from datetime import datetime, time
 from werkzeug.utils import secure_filename #type: ignore
+from flask_socketio import SocketIO #type: ignore
+
+import os
+from datetime import datetime, time, timedelta
+import time as sleep_time
+from apscheduler.schedulers.background import BackgroundScheduler #type: ignore
 
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins='*')
 CORS(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -22,6 +27,9 @@ bcrypt = Bcrypt(app)
 
 # ensure file opload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+scheduler = BackgroundScheduler()
+scheduler.start()
 
 # ------- Database Models ------- #
 class User(db.Model):
@@ -146,5 +154,28 @@ def get_image(image_id):
 
     return jsonify({'id': image.id, 'filename': image.filename, 'uploaded_at': image.uploaded_at}), 200
 
+# ---------------------------------------- #
+# -------- Notification Function --------- #
+# ---------------------------------------- #
+def send_notification():
+    notification_message = f"Notification sent at {datetime.now()}"
+    print(notification_message)
+    socketio.emit('notification', {'message': notification_message})
+
+def schedule_notification(delay):
+    run_time = datetime.now() + timedelta(seconds=delay)
+
+    scheduler.add_job(
+        send_notification,
+        'date',
+        run_date=run_time
+    )
+    print(f"Scheduled notification to be sent in {delay} seconds at {run_time}")
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    # !-------CONTROL FOR DEMOING PURPOSES-------!
+    delay = 5 # tesitng pursposes
+    # delay = 30 # demoing purposes
+    schedule_notification(delay)
+
+    socketio.run(app, host='0.0.0.0', port=5001, debug=True)
