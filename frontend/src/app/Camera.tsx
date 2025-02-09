@@ -17,7 +17,7 @@ import axios from "axios";
 import PhotoPreviewStyles from "../Styles/PhotoPreviewStyles";
 
 const API_URL = "http://127.0.0.1:5001";
-const PHONE_API_URL = "http://192.168.86.23:5001"; // FOR CAMERA TESTING ON IPHONE
+const PHONE_API_URL = "http://192.168.86.23:8081"; // FOR CAMERA TESTING ON IPHONE
 
 const api = axios.create({
   // baseURL: API_URL,
@@ -76,7 +76,6 @@ const CameraPage = () => {
       }
     } catch (error) {
       console.error("Error reading file info:", error);
-      
     }
     interface FileData {
       uri: string;
@@ -85,8 +84,8 @@ const CameraPage = () => {
     }
 
     const formData = new FormData();
-    
-    formData.append('file', {  
+
+    formData.append("file", {
       uri: photo.uri,
       name: `photo.${fileExtension}`,
       type: `image/${fileExtension}`,
@@ -95,9 +94,7 @@ const CameraPage = () => {
 
     try {
       const response = await api.post("/upload_image", formData, {
-        headers:{
-          
-        }
+        headers: {},
       });
       if (response.status == 201) {
         console.log("Successfuly added imag");
