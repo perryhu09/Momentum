@@ -15,6 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import LoginStyles from "../Styles/LoginStyles";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
 const API_URL = "http://127.0.0.1:5001";
 
@@ -23,6 +24,8 @@ const api = axios.create({
 });
 
 export default function LoginScreen() {
+  const navigation = useNavigation();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -148,7 +151,7 @@ export default function LoginScreen() {
 
           <View style={LoginStyles.signupContainer}>
             <Text style={LoginStyles.signupText}>Don't have an account? </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
               <Text style={LoginStyles.signupLink}>Sign Up</Text>
             </TouchableOpacity>
           </View>

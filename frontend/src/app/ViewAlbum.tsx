@@ -58,8 +58,8 @@ type ItemData = {
   imageUrl: string;
 };
 
-export default function ViewGallery() {
-  const [pictures, setPictures] = useState([])
+export default function ViewAlbum() {
+  const [pictures, setPictures] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,8 +94,7 @@ export default function ViewGallery() {
         <LinearGradient
           colors={["transparent", "rgba(0,0,0,0.8)"]}
           style={GalleryStyles.gradient}
-        >
-        </LinearGradient>
+        ></LinearGradient>
       </View>
     </Pressable>
   );

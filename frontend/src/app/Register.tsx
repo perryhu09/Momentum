@@ -14,6 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import RegisterStyles from "../Styles/RegisterStyles";
 import axios from "axios";
+import { useNavigation } from "expo-router";
 
 const API_URL = "http://127.0.0.1:5001";
 
@@ -22,6 +23,7 @@ const api = axios.create({
 });
 
 export default function RegisterScreen() {
+  const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -75,7 +77,7 @@ export default function RegisterScreen() {
           email: email,
           password: password,
           notif_start: notif_start,
-          notif_end: notif_end
+          notif_end: notif_end,
         },
         {
           headers: {
@@ -85,7 +87,6 @@ export default function RegisterScreen() {
       );
 
       if (response.status == 201) {
-        
       } else if (response.status === 202) {
         setErrorMessage("Email already exists!");
       }
@@ -265,7 +266,7 @@ export default function RegisterScreen() {
             <Text style={RegisterStyles.signupText}>
               Already have an account?{" "}
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
               <Text style={RegisterStyles.signupLink}>Login</Text>
             </TouchableOpacity>
           </View>

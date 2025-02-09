@@ -8,14 +8,14 @@ const HomePageStyles = StyleSheet.create({
   headerText: {
     fontSize: 32,
     fontWeight: "bold",
-    
+    marginRight: 10,
     marginBottom: 20,
     color: "white",
     justifyContent: "center",
     alignContent: "center",
     flexDirection: "row",
     alignItems: "center",
-    textAlign: "center"
+    textAlign: "center",
   },
   listContainer: {
     paddingHorizontal: 10,
@@ -54,14 +54,13 @@ const HomePageStyles = StyleSheet.create({
   },
   textContainer: {
     padding: 20,
-
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "white",
     marginBottom: 8,
-    zIndex:100
+    zIndex: 100,
   },
   description: {
     fontSize: 16,
@@ -90,6 +89,20 @@ const HomePageStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginLeft: 20,
+  },
+  logoutOpacity: {
+    color: "white",
+    width: 70,
+    height: 70,
+    backgroundColor: "#4650ab",
+    borderRadius: 40,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  topTabContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 });
 

@@ -17,6 +17,8 @@ import LoginStyles from "../Styles/LoginStyles";
 
 import axios from "axios";
 import HomePageStyles from "../Styles/HomePageStyles";
+import { useNavigation } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_URL = "http://127.0.0.1:5001";
 const PHONE_API_URL = "http://192.168.86.23:8081";
@@ -60,6 +62,7 @@ type ItemData = {
 export default function HomePage() {
   const [albumTypes, setAlbumTypes] = useState([]);
   const [albums, setAlbums] = useState([[]]);
+  const navigation = useNavigation();
 
   const [randomAlbum, setRandomAlbum] = useState<ItemData>({
     id: "3",
@@ -88,7 +91,6 @@ export default function HomePage() {
       } catch (err) {
         console.log("Error fetching album types", err);
       }
-      
     };
     fetchData();
   }, []);
@@ -113,6 +115,19 @@ export default function HomePage() {
     </Pressable>
   );
 
+  const handleCameraPress = () => {
+    navigation.navigate("Camera");
+  };
+  const handleLogOut = async () => {
+    try {
+      await AsyncStorage.removeItem("yourTokenKey");
+      console.log("Token removed successfully");
+    } catch (error) {
+      console.error("Error removing token", error);
+    }
+    navigation.navigate("Login");
+  };
+
   return (
     <LinearGradient
       colors={["#19191a", "#454545"]}
@@ -120,13 +135,17 @@ export default function HomePage() {
     >
       <ScrollView>
         <View style={HomePageStyles.container}>
-          <View>
+          <View style={HomePageStyles.topTabContainer}>
             <Text style={HomePageStyles.headerText}>Home</Text>
+            <TouchableOpacity
+              onPress={handleLogOut}
+              style={HomePageStyles.logoutOpacity}
+            >
+              <Ionicons name="log-out-outline" size={40} />
+            </TouchableOpacity>
           </View>
           {randomAlbum && (
-            <Text style={HomePageStyles.subtitleText}>
-              Daily Random Person's Story
-            </Text>
+            <Text style={HomePageStyles.subtitleText}>View Your Story</Text>
           )}
           {randomAlbum && (
             <Pressable
@@ -191,7 +210,10 @@ export default function HomePage() {
           />
         </View>
       </ScrollView>
-      <TouchableOpacity style={HomePageStyles.cameraButton}>
+      <TouchableOpacity
+        style={HomePageStyles.cameraButton}
+        onPress={handleCameraPress}
+      >
         <Ionicons name="camera-outline" color="#0" size={50} />
       </TouchableOpacity>
     </LinearGradient>
