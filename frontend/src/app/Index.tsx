@@ -11,12 +11,15 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import LoginStyles from "../Styles/LoginStyles";
+import useUserHomePageDataStore from "../store/useUserHomePageDataStore";
 
 import axios from "axios";
 import HomePageStyles from "../Styles/HomePageStyles";
+import { useNavigation } from "@react-navigation/native";
 
 const API_URL = "http://127.0.0.1:5001";
 const PHONE_API_URL = "http://192.168.86.23:8081";
@@ -26,92 +29,111 @@ const api = axios.create({
   baseURL: PHONE_API_URL,
 });
 
-const DATA: ItemData[] = [
-  {
-    id: "1",
-    title: "Mountain Retreat",
-    description: "Peaceful mountain cabin surrounded by nature",
-    imageUrl:
-      "https://api.a0.dev/assets/image?text=peaceful%20mountain%20cabin%20in%20nature%20sunset&aspect=4:5",
-  },
-  {
-    id: "2",
-    title: "Ocean Paradise",
-    description: "Crystal clear waters and pristine beaches",
-    imageUrl:
-      "https://api.a0.dev/assets/image?text=tropical%20beach%20paradise%20aerial%20view&aspect=4:5",
-  },
-  {
-    id: "3",
-    title: "Urban Adventure",
-    description: "Modern cityscape with vibrant culture",
-    imageUrl:
-      "https://api.a0.dev/assets/image?text=modern%20cityscape%20night%20neon%20lights&aspect=4:5",
-  },
-];
+type DataImage = {
+    id: string;
+    filename: string;
+    uploaded_at: string | null;
+}
 
-type ItemData = {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-};
+type Album = {
+    [title: string]: DataImage[];
+}
+
+type Story = DataImage[];
 
 export default function HomePage() {
-  const [albumTypes, setAlbumTypes] = useState([]);
-  const [albums, setAlbums] = useState([[]]);
+    const navigation = useNavigation()
+    const { albums, stories, randomStories, setAlbums, setStories, setRandomStories } = useUserHomePageDataStore();
 
-  const [randomAlbum, setRandomAlbum] = useState<ItemData>({
-    id: "3",
-    title: "Urban Adventure",
-    description: "Modern cityscape with vibrant culture",
-    imageUrl:
-      "https://api.a0.dev/assets/image?text=modern%20cityscape%20night%20neon%20lights&aspect=4:5",
-  });
+  const fetchAlbums = async (user_id : string) => {
+    try {
+      const response = await api.get(`/albums/${user_id}`);
+      if (response.status == 200) {
+        setAlbums(response.data.albums)
+      }
+    } catch (err) {
+      console.log("Error fetching user albums: ", err);
+    }
+  };
+
+  const fetchStories = async (user_id : string) => {
+    try {
+      const response = await api.get(`/stories/${user_id}`);
+      if (response.status == 200) {
+        setStories(response.data.stories)
+      }
+    } catch (err) {
+      console.log("Error fetching user's story: ", err);
+    }
+  };
+
+  const fetchRandomStory= async (user_id : string) => {
+    try {
+      const response = await api.get(`/random_stories/${user_id}`);
+      if (response.status == 201) {
+        setRandomStories(response.data.stories)
+      }
+    } catch (err) {
+      console.log("Error fetching random story: ", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const albumTypes = await api.post("/");
-
-        if (albumTypes.status == 201) {
-          //fetched
+    const loadUserData = async () => {
+        const user_id = await AsyncStorage.getItem('user_id');
+        if(user_id){
+            fetchAlbums(user_id);
+            fetchStories(user_id);
+            fetchRandomStory(user_id);
         }
-      } catch (err) {
-        console.log("Error fetching album types", err);
-      }
-
-      try {
-        const albumData = await api.post("/");
-        if (albumData.status == 201) {
-        }
-      } catch (err) {
-        console.log("Error fetching album types", err);
-      }
-      
     };
-    fetchData();
+    loadUserData();
   }, []);
 
-  const renderItem = ({ item }: { item: ItemData }) => (
+  const albumEntries = Object.entries(albums).map(([title, images]) => ({
+    title,
+    images
+  }));
+
+  const renderAlbum = ({ item }: { item: { title: string, images: DataImage[] } }) => (
     <Pressable
       style={HomePageStyles.cardContainer}
-      onPress={() => console.log(`Pressed ${item.title}`)}
+      onPress={() => navigation.navigate('ViewAlbum')}
     >
       <View style={HomePageStyles.card}>
-        <Image source={{ uri: item.imageUrl }} style={HomePageStyles.image} />
+        <Image source={ require(WHAT TO PUT HERE item.images[0].filename doesn't work bc not full path)} style={HomePageStyles.image} />
         <LinearGradient
           colors={["transparent", "rgb(0, 0, 0)"]}
           style={HomePageStyles.gradient}
         >
           <View style={HomePageStyles.textContainer}>
             <Text style={HomePageStyles.title}>{item.title}</Text>
-            <Text style={HomePageStyles.description}>{item.description}</Text>
           </View>
         </LinearGradient>
       </View>
     </Pressable>
   );
+
+  const renderStory = ({ item } : { item : Story }, title : string ) => (
+    <Pressable
+      style={HomePageStyles.cardContainer}
+      onPress={() => navigation.navigate('ViewStory')}
+    >
+      <View style={HomePageStyles.card}>
+        {/* FIXING REQUIRED RIGHT HEREERRRR: album cover (first image) */}
+        <Image source={ require(item[0].filename) } style={HomePageStyles.image} />
+        <LinearGradient
+          colors={["transparent", "rgb(0, 0, 0)"]}
+          style={HomePageStyles.gradient}
+        >
+          <View style={HomePageStyles.textContainer}>
+            <Text style={HomePageStyles.title}>{title}</Text>
+          </View>
+        </LinearGradient>
+      </View>
+    </Pressable>
+  );
+
 
   return (
     <LinearGradient
@@ -123,9 +145,9 @@ export default function HomePage() {
           <View>
             <Text style={HomePageStyles.headerText}>Home</Text>
           </View>
-          {randomAlbum && (
+          {/* {randomAlbum && (
             <Text style={HomePageStyles.subtitleText}>
-              Daily Random Person's Story
+                View an Anonymous Person's Story
             </Text>
           )}
           {randomAlbum && (
@@ -153,7 +175,7 @@ export default function HomePage() {
                 </LinearGradient>
               </View>
             </Pressable>
-          )}
+          )} */}
           <View
             style={{
               width: "95%",
@@ -165,8 +187,8 @@ export default function HomePage() {
           />
           ;<Text style={HomePageStyles.subtitleText}>Your Albums</Text>
           <FlatList
-            data={DATA} //Switch later
-            renderItem={renderItem}
+            data={albumEntries} //Switch later
+            renderItem={renderAlbum}
             horizontal
             showsHorizontalScrollIndicator={false}
           />
@@ -181,12 +203,23 @@ export default function HomePage() {
           />
           ;
           <Text style={HomePageStyles.subtitleText}>
-            Your Weekly and Monthly Stories
+            Your Weekly Story
           </Text>
           <FlatList
-            data={DATA} //Change
-            renderItem={renderItem}
+            data={stories} //Change
+            renderItem={renderStory(stories, 'Your Story')}
             horizontal
+            scrollEnabled={false}
+            showsHorizontalScrollIndicator={false}
+          />
+          <Text style={HomePageStyles.subtitleText}>
+            View an Anonymous Person's Story 
+          </Text>
+          <FlatList
+            data={randomStories} //Change
+            renderItem={renderStory(stories, 'An Anonymous Person\'s Story')}
+            horizontal
+            scrollEnabled={false}
             showsHorizontalScrollIndicator={false}
           />
         </View>
