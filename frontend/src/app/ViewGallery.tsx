@@ -59,16 +59,7 @@ type ItemData = {
 };
 
 export default function ViewGallery() {
-  const [albumTypes, setAlbumTypes] = useState([]);
-  const [albums, setAlbums] = useState([[]]);
-
-  const [randomAlbum, setRandomAlbum] = useState<ItemData>({
-    id: "3",
-    title: "Urban Adventure",
-    description: "Modern cityscape with vibrant culture",
-    imageUrl:
-      "https://api.a0.dev/assets/image?text=modern%20cityscape%20night%20neon%20lights&aspect=4:5",
-  });
+  const [pictures, setPictures] = useState([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,7 +70,7 @@ export default function ViewGallery() {
           //fetched
         }
       } catch (err) {
-        console.log("Error fetching album types", err);
+        console.log("Error fetching gallery pictures", err);
       }
 
       try {
@@ -87,7 +78,7 @@ export default function ViewGallery() {
         if (albumData.status == 201) {
         }
       } catch (err) {
-        console.log("Error fetching album types", err);
+        console.log("Error fetching gallery pictures", err);
       }
     };
     fetchData();
@@ -100,12 +91,11 @@ export default function ViewGallery() {
     >
       <View style={GalleryStyles.card}>
         <Image source={{ uri: item.imageUrl }} style={GalleryStyles.image} />
-        
-          <View style={GalleryStyles.textContainer}>
-            <Text style={GalleryStyles.title}>{item.title}</Text>
-            <Text style={GalleryStyles.description}>{item.description}</Text>
-          </View>
-        
+        <LinearGradient
+          colors={["transparent", "rgba(0,0,0,0.8)"]}
+          style={GalleryStyles.gradient}
+        >
+        </LinearGradient>
       </View>
     </Pressable>
   );
@@ -115,27 +105,28 @@ export default function ViewGallery() {
       colors={["#19191a", "#454545"]}
       style={LoginStyles.gradient}
     >
-      
-        <View style={GalleryStyles.container}>
-          <View>
-            <Text style={GalleryStyles.headerText}>Gallery View</Text>
-          </View>
-          
-          
-          
-
-          <Text style={GalleryStyles.subtitleText}>Photos</Text>
-
-          <FlatList
-            data={DATA} //Switch later
-            renderItem={renderItem}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-          />
-          <View style={{width:"95%", backgroundColor: "#FFFFFF", height: 1, marginVertical:10, alignSelf:"center"}} />;
+      <View style={GalleryStyles.container}>
+        <View>
+          <Text style={GalleryStyles.headerText}>Gallery View</Text>
         </View>
-      
-      
+        <Text style={GalleryStyles.subtitleText}>Photos</Text>
+        <FlatList
+          data={DATA} //Switch later
+          renderItem={renderItem}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        />
+        <View
+          style={{
+            width: "95%",
+            backgroundColor: "#FFFFFF",
+            height: 1,
+            marginVertical: 10,
+            alignSelf: "center",
+          }}
+        />
+        ;
+      </View>
     </LinearGradient>
   );
 }
