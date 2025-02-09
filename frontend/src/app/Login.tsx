@@ -21,7 +21,7 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const buttonScale = new Animated.Value(1);
-  const [serverMessage, setServerMessage] = useState("server not found");
+  const [errorMessage, setErrorMessage] = useState("");
   const backendon = false;
 
   const API_URL = "http://127.0.0.1:5001";
@@ -32,7 +32,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-        setServerMessage("Please fill out all input fields!")
+        setErrorMessage("Please fill out all input fields!")
       return;
     }
 
@@ -42,11 +42,11 @@ export default function LoginScreen() {
 
       if (response.status == 200) {
       } else {
-        setServerMessage("Invalid Credentials");
+        setErrorMessage("Invalid Credentials");
       }
     } catch (err) {
       console.error("Error Logging In");
-      setServerMessage("Server Failed, please try again");
+      setErrorMessage("Server Failed, please try again");
     }
     setIsLoading(false);
   };
@@ -150,9 +150,9 @@ export default function LoginScreen() {
               <Text style={LoginStyles.signupLink}>Sign Up</Text>
             </TouchableOpacity>
           </View>
-          {serverMessage && (
+          {errorMessage && (
             <View style={{ justifyContent: "center", flexDirection: "row" }}>
-              <Text style={LoginStyles.serverMessage}>{serverMessage}</Text>
+              <Text style={LoginStyles.errorMessage}>{errorMessage}</Text>
             </View>
           )}
         </View>

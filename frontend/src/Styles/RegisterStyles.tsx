@@ -85,7 +85,7 @@ const RegisterStyles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
   },
-  serverMessage: {
+  errorMessage: {
     color: "#9B1511",
     fontSize: 14,
     fontWeight: "bold",

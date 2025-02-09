@@ -21,7 +21,7 @@ export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const buttonScale = new Animated.Value(1);
-  const [serverMessage, setServerMessage] = useState("server not found");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [wakeHour, setWakeHour] = useState("");
   const [wakeMinute, setWakeMinute] = useState("");
@@ -36,16 +36,16 @@ export default function RegisterScreen() {
 
   useEffect(() => {
     if (Number(wakeHour) > 23) {
-      setServerMessage("Please Input Hours Between 0 and 23");
+      setErrorMessage("Please Input Hours Between 0 and 23");
       setWakeHour("");
     } else if (Number(wakeMinute) > 59) {
-      setServerMessage("Please Input Minutes Between 0 and 59");
+      setErrorMessage("Please Input Minutes Between 0 and 59");
       setWakeMinute("");
     } else if (Number(sleepHour) > 23) {
-      setServerMessage("Please Input Hours Between 0 and 23");
+      setErrorMessage("Please Input Hours Between 0 and 23");
       setSleepHour("");
     } else if (Number(sleepMinute) > 59) {
-      setServerMessage("Please Input Minutes Between 0 and 59");
+      setErrorMessage("Please Input Minutes Between 0 and 59");
       setSleepMinute("");
     } else {
     }
@@ -60,7 +60,7 @@ export default function RegisterScreen() {
       !sleepHour ||
       !sleepMinute
     ) {
-      setServerMessage("Please fill out all input fields!");
+      setErrorMessage("Please fill out all input fields!");
       return;
     }
 
@@ -70,11 +70,11 @@ export default function RegisterScreen() {
 
       if (response.status == 200) {
       } else {
-        setServerMessage("Email already exists!");
+        setErrorMessage("Email already exists!");
       }
     } catch (err) {
       console.error("Error Registering User");
-      setServerMessage("Server Failed, please try again");
+      setErrorMessage("Server Failed, please try again");
     }
     setIsLoading(false);
   };
@@ -252,9 +252,9 @@ export default function RegisterScreen() {
               <Text style={RegisterStyles.signupLink}>Login</Text>
             </TouchableOpacity>
           </View>
-          {serverMessage && (
+          {errorMessage && (
             <View style={{ justifyContent: "center", flexDirection: "row" }}>
-              <Text style={RegisterStyles.serverMessage}>{serverMessage}</Text>
+              <Text style={RegisterStyles.errorMessage}>{errorMessage}</Text>
             </View>
           )}
         </View>
