@@ -15,6 +15,12 @@ import { Ionicons } from "@expo/vector-icons";
 import RegisterStyles from "../Styles/RegisterStyles";
 import axios from "axios";
 
+const API_URL = "http://127.0.0.1:5001";
+
+const api = axios.create({
+  baseURL: API_URL,
+});
+
 export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,12 +33,6 @@ export default function RegisterScreen() {
   const [wakeMinute, setWakeMinute] = useState("");
   const [sleepHour, setSleepHour] = useState("");
   const [sleepMinute, setSleepMinute] = useState("");
-
-  const API_URL = "http://127.0.0.1:5001";
-
-  const api = axios.create({
-    baseURL: API_URL,
-  });
 
   useEffect(() => {
     if (Number(wakeHour) > 23) {
@@ -64,16 +64,33 @@ export default function RegisterScreen() {
       return;
     }
 
+    const notif_start = wakeHour + ":" + wakeMinute;
+    const notif_end = sleepHour + ":" + sleepMinute;
+
     setIsLoading(true);
     try {
-      const response = await api.post("/register", { email, password });
+      const response = await api.post(
+        "/register",
+        {
+          email: email,
+          password: password,
+          notif_start: notif_start,
+          notif_end: notif_end
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (response.status == 200) {
-      } else {
+      if (response.status == 201) {
+        
+      } else if (response.status === 202) {
         setErrorMessage("Email already exists!");
       }
     } catch (err) {
-      console.error("Error Registering User");
+      console.error("Error Registering User:", err);
       setErrorMessage("Server Failed, please try again");
     }
     setIsLoading(false);
@@ -185,7 +202,7 @@ export default function RegisterScreen() {
               keyboardType="numeric"
               value={wakeHour}
               onChangeText={handleWakeHour}
-              placeholder="0"
+              placeholder="00"
             />
 
             <Text> : </Text>
@@ -193,7 +210,7 @@ export default function RegisterScreen() {
               keyboardType="numeric"
               value={wakeMinute}
               onChangeText={handleWakeMinute}
-              placeholder="0"
+              placeholder="00"
             />
           </View>
 
@@ -211,7 +228,7 @@ export default function RegisterScreen() {
               keyboardType="numeric"
               value={sleepHour}
               onChangeText={handleSleepHour}
-              placeholder="0"
+              placeholder="00"
             />
 
             <Text> : </Text>
@@ -219,7 +236,7 @@ export default function RegisterScreen() {
               keyboardType="numeric"
               value={sleepMinute}
               onChangeText={handleSleepMinute}
-              placeholder="0"
+              placeholder="00"
             />
           </View>
 

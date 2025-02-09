@@ -2,10 +2,12 @@ import os
 from flask import Flask, jsonify, request # type: ignore
 from flask_sqlalchemy import SQLAlchemy #type: ignore
 from flask_bcrypt import Bcrypt #type: ignore
+from flask_cors import CORS #type: ignore
 from datetime import datetime, time
 from werkzeug.utils import secure_filename #type: ignore
 
 app = Flask(__name__)
+CORS(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -39,7 +41,7 @@ class Image(db.Model):
     user = db.relationship('User', backref='images') # links together both db, backref allows user.images access all images
 
 with app.app_context():
-    # db.drop_all()
+    db.drop_all()
     db.create_all()
 
 # ------- Helper Functions ------- #
@@ -84,6 +86,11 @@ def register():
 
         db.session.add(user)
         db.session.commit()
+    
+        return jsonify({'message': 'User created successfully'}), 201
+    else:
+        return jsonify({'message': 'User already exists. Please Login'}), 202
+
 # ---------------------------------------- #
 # ----------- Image Endpoints ------------ #
 # ---------------------------------------- #

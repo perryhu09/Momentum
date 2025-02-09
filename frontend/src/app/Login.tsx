@@ -32,21 +32,20 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-        setErrorMessage("Please fill out all input fields!")
+      setErrorMessage("Please fill out all input fields!");
       return;
     }
 
     setIsLoading(true);
     try {
       const response = await api.post("/login", { email, password });
-
-      if (response.status == 200) {
-      } else {
+      console.log("response status: ", response.status);
+    } catch (err : any) {
+       if (err.response.status === 401) {
         setErrorMessage("Invalid Credentials");
+      } else {
+        setErrorMessage("Server Failed, please try again");
       }
-    } catch (err) {
-      console.error("Error Logging In");
-      setErrorMessage("Server Failed, please try again");
     }
     setIsLoading(false);
   };
