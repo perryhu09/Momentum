@@ -127,6 +127,7 @@ def upload_image():
         theme = clip_api.get_closest_theme(filename)
 
         new_image = Image(filename=filename + uuid.uuid4(), user_id=user_id, theme=theme)
+
         db.session.add(new_image)
         db.session.commit()
 
