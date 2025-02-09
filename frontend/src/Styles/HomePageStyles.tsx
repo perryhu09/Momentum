@@ -54,12 +54,14 @@ const HomePageStyles = StyleSheet.create({
   },
   textContainer: {
     padding: 20,
+
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "white",
     marginBottom: 8,
+    zIndex:100
   },
   description: {
     fontSize: 16,

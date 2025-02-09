@@ -98,12 +98,15 @@ export default function HomePage() {
     >
       <View style={HomePageStyles.card}>
         <Image source={{ uri: item.imageUrl }} style={HomePageStyles.image} />
-        
+        <LinearGradient
+          colors={["transparent", "rgb(0, 0, 0)"]}
+          style={HomePageStyles.gradient}
+        >
           <View style={HomePageStyles.textContainer}>
             <Text style={HomePageStyles.title}>{item.title}</Text>
             <Text style={HomePageStyles.description}>{item.description}</Text>
           </View>
-        
+        </LinearGradient>
       </View>
     </Pressable>
   );
@@ -118,7 +121,6 @@ export default function HomePage() {
           <View>
             <Text style={HomePageStyles.headerText}>Home</Text>
           </View>
-          
           {randomAlbum && (
             <Text style={HomePageStyles.subtitleText}>
               Daily Random Person's Story
@@ -134,40 +136,57 @@ export default function HomePage() {
                   source={{ uri: randomAlbum.imageUrl }}
                   style={HomePageStyles.image}
                 />
-                
-                <View style={HomePageStyles.textContainer}>
-                  <Text style={HomePageStyles.title}>
-                    {randomAlbum.title}
-                  </Text>
-                  <Text style={HomePageStyles.description}>
-                    {randomAlbum.description}
-                  </Text>
-                </View>
-                
+                <LinearGradient
+                  colors={["transparent", "rgb(0, 0, 0)"]}
+                  style={HomePageStyles.gradient}
+                >
+                  <View style={HomePageStyles.textContainer}>
+                    <Text style={HomePageStyles.title}>
+                      {randomAlbum.title}
+                    </Text>
+                    <Text style={HomePageStyles.description}>
+                      {randomAlbum.description}
+                    </Text>
+                  </View>
+                </LinearGradient>
               </View>
             </Pressable>
           )}
-          <View style={{width:"95%", backgroundColor: "#FFFFFF", height: 1, marginVertical:10, alignSelf:"center"}} />;
-
-          <Text style={HomePageStyles.subtitleText} >Your Albums</Text>
-
+          <View
+            style={{
+              width: "95%",
+              backgroundColor: "#FFFFFF",
+              height: 1,
+              marginVertical: 10,
+              alignSelf: "center",
+            }}
+          />
+          ;<Text style={HomePageStyles.subtitleText}>Your Albums</Text>
           <FlatList
             data={DATA} //Switch later
             renderItem={renderItem}
             horizontal
             showsHorizontalScrollIndicator={false}
           />
-
-          <View style={{width:"95%", backgroundColor: "#FFFFFF", height: 1, marginVertical:10, alignSelf:"center"}} />;
-
-          <Text style={HomePageStyles.subtitleText} >Your Weekly and Monthly Stories</Text>
+          <View
+            style={{
+              width: "95%",
+              backgroundColor: "#FFFFFF",
+              height: 1,
+              marginVertical: 10,
+              alignSelf: "center",
+            }}
+          />
+          ;
+          <Text style={HomePageStyles.subtitleText}>
+            Your Weekly and Monthly Stories
+          </Text>
           <FlatList
-            data={DATA} //Change 
+            data={DATA} //Change
             renderItem={renderItem}
             horizontal
             showsHorizontalScrollIndicator={false}
           />
-          
         </View>
       </ScrollView>
       <TouchableOpacity style={HomePageStyles.cameraButton}>
