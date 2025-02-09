@@ -7,8 +7,9 @@ import {
   Pressable,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import LoginStyles from "../Styles/LoginStyles";
@@ -16,6 +17,7 @@ import HomePageStyles from "../Styles/HomePageStyles";
 import useUserHomePageDataStore from "../store/useUserHomePageDataStore";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
+import io from "socket.io-client";
 
 // Import the image map for local images
 import { imageMap } from "./ImageMap";
@@ -39,8 +41,14 @@ type Story = DataImage[];
 
 export default function HomePage() {
   const navigation = useNavigation();
-  const { albums, stories, randomStories, setAlbums, setStories, setRandomStories } =
-    useUserHomePageDataStore();
+  const {
+    albums,
+    stories,
+    randomStories,
+    setAlbums,
+    setStories,
+    setRandomStories,
+  } = useUserHomePageDataStore();
 
   const fetchAlbums = async (user_id: string) => {
     try {
@@ -87,6 +95,20 @@ export default function HomePage() {
     loadUserData();
   }, []);
 
+  useEffect(() => {
+    // connect socket to flask server
+    const socket = io("http://127.0.0.1:5001");
+
+    // Listen for the notification event
+    socket.on("notification", (data) => {
+      Alert.alert("Notification", data.message);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   // Convert the albums object to an array for FlatList
   const albumEntries = Object.entries(albums).map(([title, images]) => ({
     title,
@@ -99,8 +121,7 @@ export default function HomePage() {
     item: { title: string; images: DataImage[] };
   }) => {
     // Use the mapping object to get the image; fallback to a default image if not found
-    const imageSource =
-      imageMap[item.images[0].filename];
+    const imageSource = imageMap[item.images[0].filename];
 
     return (
       <Pressable
@@ -123,33 +144,30 @@ export default function HomePage() {
   };
 
   // Factory function to render stories with a given title
-  const renderStoryWithTitle = (title: string) => ({
-    item,
-  }: {
-    item: Story;
-  }) => {
-    const imageSource =
-      imageMap[item[0].filename];
+  const renderStoryWithTitle =
+    (title: string) =>
+    ({ item }: { item: Story }) => {
+      const imageSource = imageMap[item[0].filename];
 
-    return (
-      <Pressable
-        style={HomePageStyles.cardContainer}
-        onPress={() => navigation.navigate("ViewStory")}
-      >
-        <View style={HomePageStyles.card}>
-          <Image source={imageSource} style={HomePageStyles.image} />
-          <LinearGradient
-            colors={["transparent", "rgb(0, 0, 0)"]}
-            style={HomePageStyles.gradient}
-          >
-            <View style={HomePageStyles.textContainer}>
-              <Text style={HomePageStyles.title}>{title}</Text>
-            </View>
-          </LinearGradient>
-        </View>
-      </Pressable>
-    );
-  };
+      return (
+        <Pressable
+          style={HomePageStyles.cardContainer}
+          onPress={() => navigation.navigate("ViewStory")}
+        >
+          <View style={HomePageStyles.card}>
+            <Image source={imageSource} style={HomePageStyles.image} />
+            <LinearGradient
+              colors={["transparent", "rgb(0, 0, 0)"]}
+              style={HomePageStyles.gradient}
+            >
+              <View style={HomePageStyles.textContainer}>
+                <Text style={HomePageStyles.title}>{title}</Text>
+              </View>
+            </LinearGradient>
+          </View>
+        </Pressable>
+      );
+    };
 
   return (
     <LinearGradient
