@@ -57,9 +57,6 @@ type ItemData = {
   imageUrl: string;
 };
 
-const CARD_WIDTH = Dimensions.get("window").width * 0.8;
-const CARD_HEIGHT = 400;
-
 export default function HomePage() {
   const [albumTypes, setAlbumTypes] = useState([]);
   const [albums, setAlbums] = useState([[]]);
@@ -101,15 +98,12 @@ export default function HomePage() {
     >
       <View style={HomePageStyles.card}>
         <Image source={{ uri: item.imageUrl }} style={HomePageStyles.image} />
-        <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.8)"]}
-          style={HomePageStyles.gradient}
-        >
+        
           <View style={HomePageStyles.textContainer}>
             <Text style={HomePageStyles.title}>{item.title}</Text>
             <Text style={HomePageStyles.description}>{item.description}</Text>
           </View>
-        </LinearGradient>
+        
       </View>
     </Pressable>
   );
