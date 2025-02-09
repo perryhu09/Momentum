@@ -88,7 +88,9 @@ export default function HomePage() {
       } catch (err) {
         console.log("Error fetching album types", err);
       }
+      
     };
+    fetchData();
   }, []);
 
   const renderItem = ({ item }: { item: ItemData }) => (
