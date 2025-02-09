@@ -49,7 +49,7 @@ class Image(db.Model):
     user = db.relationship('User', backref='images') # links together both db, backref allows user.images access all images
 
 with app.app_context():
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
 
 # ------- Helper Functions ------- #

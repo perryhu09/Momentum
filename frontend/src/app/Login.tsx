@@ -15,6 +15,13 @@ import { Ionicons } from "@expo/vector-icons";
 import LoginStyles from "../Styles/LoginStyles";
 import axios from "axios";
 
+const API_URL = "http://127.0.0.1:5001";
+
+  const api = axios.create({
+    baseURL: API_URL,
+  });
+
+
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,12 +31,7 @@ export default function LoginScreen() {
   const [errorMessage, setErrorMessage] = useState("");
   const backendon = false;
 
-  const API_URL = "http://127.0.0.1:5001";
-
-  const api = axios.create({
-    baseURL: API_URL,
-  });
-
+  
   const handleLogin = async () => {
     if (!email || !password) {
       setErrorMessage("Please fill out all input fields!");
