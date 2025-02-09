@@ -46,6 +46,7 @@ class Image(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     filename = db.Column(db.String(100), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    theme = db.Column(db.String(100), nullable=True)
     # foreignKey makes it so that the id in User is also part of Image
     uploaded_at = db.Column(db.DateTime, default=datetime.now())
 
