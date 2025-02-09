@@ -9,7 +9,7 @@ const RegisterStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  loginContainer: {
+  registerContainer: {
     width: "88%",
     backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderRadius: 20,
@@ -58,7 +58,7 @@ const RegisterStyles = StyleSheet.create({
     color: "#4c669f",
     fontSize: 14,
   },
-  loginButton: {
+  registerButton: {
     backgroundColor: "#212121",
     borderRadius: 10,
     height: 50,
@@ -66,7 +66,7 @@ const RegisterStyles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-  loginButtonText: {
+  registerButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
@@ -101,7 +101,7 @@ const RegisterStyles = StyleSheet.create({
   },
   timeInput: {
     fontSize: 16,
-    color:""
+    color: "",
   },
 });
 

@@ -32,6 +32,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
+        setServerMessage("Please fill out all input fields!")
       return;
     }
 

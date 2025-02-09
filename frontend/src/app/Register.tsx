@@ -15,7 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import RegisterStyles from "../Styles/RegisterStyles";
 import axios from "axios";
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -51,7 +51,7 @@ export default function LoginScreen() {
     }
   }, [wakeHour, wakeMinute, sleepHour, sleepMinute]);
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
     if (
       !email ||
       !password ||
@@ -61,6 +61,7 @@ export default function LoginScreen() {
       !sleepMinute
     ) {
       setServerMessage("Please fill out all input fields!");
+      return;
     }
 
     setIsLoading(true);
@@ -122,7 +123,7 @@ export default function LoginScreen() {
         colors={["#19191a", "#454545"]}
         style={RegisterStyles.gradient}
       >
-        <View style={RegisterStyles.loginContainer}>
+        <View style={RegisterStyles.registerContainer}>
           <Text style={RegisterStyles.title}>Register</Text>
 
           <View style={RegisterStyles.inputContainer}>
@@ -225,20 +226,20 @@ export default function LoginScreen() {
           <TouchableOpacity
             onPress={() => {
               animateButton();
-              handleLogin();
+              handleRegister();
             }}
             activeOpacity={0.8}
           >
             <Animated.View
               style={[
-                RegisterStyles.loginButton,
+                RegisterStyles.registerButton,
                 { transform: [{ scale: buttonScale }] },
               ]}
             >
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={RegisterStyles.loginButtonText}>Register</Text>
+                <Text style={RegisterStyles.registerButtonText}>Register</Text>
               )}
             </Animated.View>
           </TouchableOpacity>
